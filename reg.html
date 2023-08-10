@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  
+    <meta charset="UTF-8" />
+    <title>Responsive Registration Form</title>
+    <script type="module" src="reg.js" ></script>
+    <link rel="stylesheet" href="reg.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/7.14.1-0/firebase.js"></script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-analytics.js";
+      import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
+</script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body> 
+    <div class="container">
+      <div class="title">Registration</div>
+      <div class="content">
+        <span class="borderLine"></span>
+        <form onsubmit="signup(event)" id="registerDB">
+          <div class="user-details">
+            <div class="input-box">
+              <span class="details">First Name</span>
+              <input type="text" id="name" placeholder="Enter your Firstname" />
+            </div>
+            <div class="input-box">
+              <span class="details">Last Name</span>
+              <input
+                type="text"
+                id="uname"
+                placeholder="Enter your Lastname"
+                pattern="[a-zA-Z]*"
+              />
+            </div>
+            <div class="input-box">
+              <span class="details">Email</span>
+              <input type="email" id="email" placeholder="Enter your email" />
+            </div>
+            <div class="input-box">
+              <span class="details">Phone Number</span>
+              <input type="number" id="phno" placeholder="Enter your number" />
+            </div>
+            <div class="input-box">
+              <span class="details">Password</span>
+              <input
+                type="password"
+                placeholder="Enter your password"
+                id="password"
+              />
+            </div>
+            <div class="input-box">
+              <span class="details">Confirm Password</span>
+              <input type="password" placeholder="Confirm your password" />
+            </div>
+            <div class="input-box">
+              <label for="dob">Date of Birth</label>
+              <input type="date" class="form-control" id="dob" />
+              <span class="details"></span>
+            </div>
+            <div class="input-box">
+              <label for="age">Age</label>
+              <input
+                type="number"
+                class="form-control"
+                id="age"
+                placeholder="Enter your age"
+                min="21"
+                max="30"
+              />
+            </div>
+            <div class="input-box">
+              <label for="college">College Name</label>
+              <input
+                type="text"
+                class="form-control"
+                id="college"
+                placeholder="Enter your college name"
+              />
+            </div>
+            <div class="input-box">
+              <label for="Current Cgpa">Current CGPA</label>
+              <input
+                type="number"
+                class="form-control"
+                id="cgpa"
+                placeholder="Enter your current cgpa"
+                min="6"
+                max="10"
+              />
+            </div>
+            <div class="input-box">
+              <label for="graduation-year">Year of Graduation</label>
+              <input
+                type="number"
+                class="form-control"
+                id="graduation-year"
+                placeholder="Enter year of graduation"
+                min="2000"
+                max="2024"
+              />
+            </div>
+            <div class="input-box">
+              <label for="education-gap">Education Gap (if any)</label>
+              <input
+                type="number"
+                class="form-control"
+                id="education-gap"
+                placeholder="Enter education gap"
+                min="0"
+                max="2"
+              />
+            </div>
+            <div class="input-box">
+              <span class="details">Degree</span>
+              <input type="text" id="degree" placeholder="Enter your degree" />
+            </div>
+            <div class="input-box">
+              <span class="details">Branch</span>
+              <input type="text" id="branch" placeholder="Enter your branch" />
+            </div>
+            <div class="input-box">
+              <label for="education-12">12th Mark (percentage)</label>
+              <input
+                type="number"
+                class="form-control"
+                id="education-12"
+                placeholder="Enter 12th education detail"
+                min="60"
+                max="100"
+              />
+            </div>
+            <div class="input-box">
+              <label for="education-10">10th Mark (percentage)</label>
+              <input
+                type="number"
+                class="form-control"
+                id="education-10"
+                placeholder="Enter 10th education detail"
+                min="60"
+                max="100"
+              />
+            </div>
+            <div class="input-box">
+              <label for="experience">Experience</label>
+              <input
+                type="number"
+                class="form-control"
+                id="exp"
+                placeholder="Total no of Experience"
+                min="0"
+              />
+            </div>
+            <div class="input-box">
+              <label for="experience">Passport Number</label>
+              <input
+                type="text"
+                class="form-control"
+                id="passport"
+                placeholder="Enter Passport Number"
+              />
+            </div>
+          </div>
+          <div class="gender-details">
+            <input type="radio" name="gender" id="dot-1" />
+            <input type="radio" name="gender" id="dot-2" />
+            <input type="radio" name="gender" id="dot-3" />
+            <span class="gender-title">Gender</span>
+            <div class="category">
+              <label for="dot-1">
+                <span class="dot one"></span>
+                <span class="gender">Male</span>
+              </label>
+              <label for="dot-2">
+                <span class="dot two"></span>
+                <span class="gender">Female</span>
+              </label>
+              <label for="dot-3">
+                <span class="dot three"></span>
+                <span class="gender">Prefer not to say</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="button">  
+            <input type="submit"  id = "submit"value="submit" ahref="login.html" />
+          </div>
+        </form>
+      </div>
+    </div>
+   
+        </script>
+  </body>
+</html>

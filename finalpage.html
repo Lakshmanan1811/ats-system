@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+
+    <title>Resume-Ranking-page</title>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
+    <link rel="stylesheet" href="finalpage.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="title">Resume</div>
+      <h2>Welcome to the Resume Ranking Platform</h2>
+      <p>Upload your resume to see how it ranks!</p>
+      <div class="content">
+       
+        <div class="content">
+          <div class="header">
+            
+          </div>
+        <span class="borderLine"></span>
+        <form id = "uploadForm" action="/upload" method="post" onsubmit="showAlert();  returntoLandingPage()" enctype="multipart/form-data">
+          <div class="user-details">
+            <div class="input-box">
+              <label for="resume">Upload Resume (PDF)</label>
+              <input
+                type="file"
+                onchange="getImageData(event)"
+                name="pdfFile"
+                class="form-control-file"
+                id="resume"
+                accept=".pdf"
+                required
+              />
+            </div>
+          </div>
+          <div class="button" >
+            <input
+              type="submit"
+              id="submitButton"
+              value="Upload Resume"
+            />
+          </div>
+        </form>
+      </div>
+    </div>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyAEVXNX8AVWSUNBubFItcXK1ZxAixx3aEE",
+        authDomain: "axis-bankproject.firebaseapp.com",
+        databaseURL: "https://axis-bankproject-default-rtdb.firebaseio.com",
+        projectId: "axis-bankproject",
+        storageBucket: "axis-bankproject.appspot.com",
+        messagingSenderId: "837146426300",
+        appId: "1:837146426300:web:bf154f6447885a822ec9b9",
+        measurementId: "G-GMPG65FHR6",
+      };
+
+      const app = firebase.initializeApp(firebaseConfig);
+      const storage = firebase.storage();
+      let file;
+      let fileName;
+
+      const getImageData = (e) => {
+        file = e.target.files[0];
+        fileName = Math.round(Math.random() * 9999) + file.name;
+      };
+
+      const uploadImage = () => {
+        const storageRef = storage.ref().child("myimages");
+        const folderRef = storageRef.child(fileName);
+        const uploadTask = folderRef.put(file);
+        
+
+        uploadTask.then((snapshot) => {
+          console.log("File Uploaded Successfully");
+
+          storage
+            .ref("myimages")
+            .child(fileName)
+            .getDownloadURL()
+            .then((url) => {
+              console.log("URL", url);
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        });
+      };
+      function showAlert(){
+        alert("You have successfully uploaded your resume!");
+      }
+      function returntoLandingPage(){
+        setTimeout(function(){
+          window.location.href = "/landing-page.html";
+        },1000);
+      }
+    </script>
+    <script type="module " src="app.js"></script>
+  </body>
+</html>
