@@ -1,87 +1,75 @@
-import express from 'express';
-import multer from 'multer';
-import fs from 'fs';
-import pdfjs from 'pdfjs-dist';
-import natural from 'natural';
-import { createTransport } from 'nodemailer';
+import fs from "fs";
+import pdfjs from "pdfjs-dist";
+import natural from "natural";
+import { createTransport } from "nodemailer";
+import { error, log } from "console";
 
-const app = express();
-const upload = multer({ dest: 'uploads/' });
+let total = 0;
+// Function to read the contents of a PDF file
+async function extractInformationFromPDF(filePath) {
+  const data = new Uint8Array(fs.readFileSync(filePath));
+  const loadingTask = pdfjs.getDocument(data);
+  const pdfDocument = await loadingTask.promise;
 
-app.use(express.static('public'));
+  const extractedText = [];
+  for (let i = 1; i <= pdfDocument.numPages; i++) {
+    const page = await pdfDocument.getPage(i);
+    const content = await page.getTextContent();
+    const pageText = content.items.map((item) => item.str).join(" ");
+    extractedText.push(pageText);
+  }
 
-app.post('/upload', upload.single('pdfFile'), async (req, res) => {
-    const pdfFilePath = req.file.path;
-    const jobDescriptionFilePath = 'resume.json';
+  return extractedText.join("\n");
+}
 
-    async function extractInformationFromPDF(filePath) {
-      const data = new Uint8Array(fs.readFileSync(filePath));
-      const loadingTask = pdfjs.getDocument(data);
-      const pdfDocument = await loadingTask.promise;
-    
-      const extractedText = [];
-      for (let i = 1; i <= pdfDocument.numPages; i++) {
-        const page = await pdfDocument.getPage(i);
-        const content = await page.getTextContent();
-        const pageText = content.items.map((item) => item.str).join(" ");
-        extractedText.push(pageText);
+// Function to read the contents of a JSON file
+function readJSON(filePath) {
+  const rawData = fs.readFileSync(filePath);
+  const jsonData = JSON.parse(rawData);
+  return jsonData;
+}
+
+function rankMatches(extractedText, jobDescription) {
+  const rankedMatches = [];
+  for (const key in jobDescription) {
+    if (jobDescription.hasOwnProperty(key)) {
+      const value = jobDescription[key];
+      if (typeof value === "string") {
+        const similarity = natural.JaroWinklerDistance(
+          extractedText.toLowerCase(),
+          value.toLowerCase(),
+          { ignoreCase: true }
+        );
+        const similarityScale10 = similarity * 100;
+        rankedMatches.push({ key, similarity: similarityScale10 });
+      } else {
+        console.warn(`Warning: Value for attribute "${key}" is not a string.`);
       }
-    
-      return extractedText.join("\n");
     }
-    
-    // Function to read the contents of a JSON file
-    function readJSON(filePath) {
-      const rawData = fs.readFileSync(filePath);
-      const jsonData = JSON.parse(rawData);
-      return jsonData;
-    }
-    
-    function rankMatches(extractedText, jobDescription) {
-      const rankedMatches = [];
-      for (const key in jobDescription) {
-        if (jobDescription.hasOwnProperty(key)) {
-          const value = jobDescription[key];
-          if (typeof value === "string") {
-            const similarity = natural.JaroWinklerDistance(
-              extractedText.toLowerCase(),
-              value.toLowerCase(),
-              { ignoreCase: true }
-            );
-            const similarityScale10 = similarity * 100;
-            rankedMatches.push({ key, similarity: similarityScale10 });
-          } else {
-            console.warn(`Warning: Value for attribute "${key}" is not a string.`);
-          }
-        }
-      }
-      rankedMatches.sort((a, b) => b.similarity - a.similarity);
-    
-      return rankedMatches;
-    }
-    try {
-      const [extractedText, jobDescription] = await Promise.all([
-          extractInformationFromPDF(pdfFilePath),
-          readJSON(jobDescriptionFilePath),
-      ]);
+  }
+  rankedMatches.sort((a, b) => b.similarity - a.similarity);
 
-      const rankedMatches = rankMatches(extractedText, jobDescription);
-      console.log('Ranked Matches:');
-      let total = 0; // Initialize total here
+  return rankedMatches;
+}
+const pdfFilePath = "resume.pdf";
+const jobDescriptionFilePath = "resume.json";
 
-      rankedMatches.forEach((match, index) => {
-          console.log(`${index + 1}. Attribute: ${match.key}, Similarity: ${match.similarity}`);
-          total += match.similarity * 100;
-      });
-
-      if (total > 60) {
-          emailAutomation();
-      }
-
-      res.send('PDF processing and analysis complete.');
-  } catch (error) {
-      console.error('Error:', error);
-      res.status(500).send('An error occurred.');
+Promise.all([
+  extractInformationFromPDF(pdfFilePath),
+  readJSON(jobDescriptionFilePath),
+]).then(([extractedText, jobDescription]) => {
+  // Rank the extracted information against the job description
+  const rankedMatches = rankMatches(extractedText, jobDescription);
+  // Display the ranked matches
+  console.log("Ranked Matches:");
+  rankedMatches.forEach((match, index) => {
+    console.log(
+      `${index + 1}. Attribute: ${match.key}, Similarity: ${match.similarity}`
+    );
+    total += match.similarity;
+  });
+  if (total > 350) {
+    emailAutomation();
   }
 });
 
@@ -100,7 +88,7 @@ const emailAutomation = function () {
 
   const mailOptions = {
     from: "manibharathiinreallife@gmail.com",
-    to: "velakshman@gmail.com",
+    to: "ashikcsbtech@gmail.com",
     subject: `Invitation to the Next Round of Interview Process`,
     text: `
 
@@ -109,7 +97,6 @@ const emailAutomation = function () {
     We hope this message finds you well. We are pleased to inform you that your resume has been shortlisted for the next round of our interview process for the [Job Title] position at [Company Name].
     
     Here are the details for the upcoming round:
-    
     
     
     Please be prepared for: Communication test
@@ -137,12 +124,3 @@ const emailAutomation = function () {
     }
   });
 };
-
-app.listen(3000, () => {
-  console.log('Server is running on port 3000');
-});
-
-
-
-
-
